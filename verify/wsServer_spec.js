@@ -13,8 +13,6 @@ describe("websocket server should listens on specific port", function() {
 
   router.mount("/echo", "etherpty-protocol", function(request) {
     var connection = require("../lib/monkey_patch_wsConnection")(request.accept('etherpty-protocol', request.origin));
-    
-//    var connection = request.accept('etherpty-protocol', request.origin);
     connection.on("message", function(message) {
       connection.send("pong");
     });
@@ -22,8 +20,14 @@ describe("websocket server should listens on specific port", function() {
 
   router.mount("/pty/io/:token", "etherpty-protocol", function(request) {
     var connection = require("../lib/monkey_patch_wsConnection")(request.accept('etherpty-protocol', request.origin));
-    //var connection = request.accept('etherpty-protocol', request.origin);
     connection.send(request.params.token);
+  });
+
+  router.mount("/pty/meta/:token", "etherpty-protocol", function(request) {
+    var connection = require("../lib/monkey_patch_wsConnection")(request.accept('etherpty-protocol', request.origin));
+    connection.on("join", function(data) {
+      connection.send(data);
+    });
   });
 
   beforeEach(function() {
@@ -50,7 +54,18 @@ describe("websocket server should listens on specific port", function() {
 
     });
     client.connect('ws://localhost:8080/pty/io/mytoken', 'etherpty-protocol');
-    
+  });
+
+  it("monkey patch for the connection to listening on specific event.", function(done) {
+    client.on("connect", function(connection) {
+      connection.send(JSON.stringify({type:"join", token:"mytoken"}))
+      connection.on("message", function(message) {
+        expect(message.utf8Data).to.equal("mytoken");
+        done();
+      });
+
+    });
+    client.connect('ws://localhost:8080/pty/io/mytoken', 'etherpty-protocol');
   });
 
 })
