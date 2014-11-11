@@ -25,14 +25,15 @@ describe("websocket server should listens on specific port", function() {
 
   router.mount("/pty/meta/:token", "etherpty-protocol", function(request) {
     var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin));
+    connection.type = "meta";
     connection.on("share", function(data) {
       connection.send(data.token);
     });
 
     connection.on("join", function(data) {
-      router.addListener(data.token,"meta", connection);
+      router.addListener(data, connection);
       if (router.listeners[data.token]["meta"].length === 2) {
-        router.broadcast(data.token, "meta", "broadcast message.") ;
+        router.broadcast(data, "broadcast message.") ;
       }
     });
   });
