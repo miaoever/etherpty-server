@@ -1,31 +1,29 @@
 var request = require("supertest")
   , expect = require("chai").expect
   , http = require("http")
-  , wsClient = require("websocket").client
-  , wsServer = require("../lib/server")
   , monkey_patch_wsConnection = require("../lib/monkey_patch_wsConnection");
 
-describe("websocket server should listens on specific port", function() {
+describe("Implement the websocket router.", function() {
+  var wsClient = require("websocket").client;
+  var wsRouter = require("../").router;
   var client;
-  var router;
-
-  router = wsServer.createServer(8080);
+  var router = wsRouter.createServer(8080);
 
   router.mount("/echo", "etherpty-protocol", function(request) {
-    var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin));
+    var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin), "echo");
     connection.on("message", function(message) {
       connection.send("pong");
     });
   })
 
   router.mount("/pty/io/:token", "etherpty-protocol", function(request) {
-    var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin));
+    var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin), "io");
     connection.send(request.params.token);
   });
 
   router.mount("/pty/meta/:token", "etherpty-protocol", function(request) {
-    var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin));
-    connection.type = "meta";
+    var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin), "meta");
+
     connection.on("share", function(data) {
       connection.send(data.token);
     });
@@ -53,7 +51,7 @@ describe("websocket server should listens on specific port", function() {
     client.connect('ws://localhost:8080/echo', 'etherpty-protocol');
   });
 
-  it("support express-style path, eg: /pty/io/:token ", function(done) {
+  it("support express-style path, ie. /pty/io/:token ", function(done) {
     client.on("connect", function(connection) {
       connection.on("message", function(message) {
         expect(message.utf8Data).to.equal("mytoken");

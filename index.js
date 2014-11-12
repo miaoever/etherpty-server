@@ -1,1 +1,2 @@
-module.exports = require("./lib/server.js");
+exports.router = require("./lib/server.js");
+exports.etherpty = require("./lib/etherpty.js").etherpty;
