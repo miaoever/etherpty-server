@@ -68,6 +68,7 @@ describe("Implement the etherpty server.", function() {
       });
     });
   });
+  
 /*
   it("responds with the join request.", function(done) {
     clientMeta.connect('ws://localhost:8081/pty/meta/' + token, 'etherpty-protocol');
@@ -90,6 +91,7 @@ describe("Implement the etherpty server.", function() {
     });
   });
 */
+
   it("responds error when join with error token.", function(done) {
     clientMeta.connect('ws://localhost:8081/pty/meta/noToken', 'etherpty-protocol');
     clientMeta.on("connect", function(connection) {
@@ -126,6 +128,7 @@ describe("Implement the etherpty server.", function() {
           });
 
           meta.on("join", function(data) {
+            expect(data.token).to.be.equal(token);
             clientIO.connect('ws://localhost:8081/pty/io/client/' + data.token, 'etherpty-protocol');
             clientIO.on("connect", function(connection) {
               var io = connection;
@@ -144,7 +147,7 @@ describe("Implement the etherpty server.", function() {
         masterIO.on("connect", function(connection) {
           var io = monkey_patch_wsConnection(connection, "io");
           io.send("message from the master."); 
-          done();
+          //done();
         });
       });
     });
