@@ -131,7 +131,7 @@ describe("Implement the etherpty server.", function() {
               var io = connection;
               io.on("message", function(data) {
                 expect(data.utf8Data).to.be.equal("message from the master.")
-                done()
+                done();
               });
             });
           });
