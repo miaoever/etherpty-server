@@ -147,7 +147,6 @@ describe("Implement the etherpty server.", function() {
         masterIO.on("connect", function(connection) {
           var io = monkey_patch_wsConnection(connection, "io");
           io.send("message from the master."); 
-          //done();
         });
       });
     });
