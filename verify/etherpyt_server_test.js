@@ -151,5 +151,49 @@ describe("Implement the etherpty server.", function() {
       });
     });
   });
+
+  it("responds with master close event.", function(done) {
+    masterMeta.connect('ws://localhost:8081/pty/meta/0', 'etherpty-protocol');
+    masterMeta.on("connect", function(connection) {
+      var meta = monkey_patch_wsConnection(connection, "meta");
+      
+      meta.sendMessage({type:"share"});
+      meta.on("share", function(data) {
+        expect(data).to.have.property("token");
+        token = data.token;
+        clientMeta.connect('ws://localhost:8081/pty/meta/' + token, 'etherpty-protocol');
+        clientMeta.on("connect", function(connection) {
+          var meta = monkey_patch_wsConnection(connection, "meta");
+
+          meta.sendMessage({type:"join", token:token});
+
+          meta.on("error", function(data){
+          });
+          
+          meta.on("exit", function(data) {
+            meta.close();
+            expect(data.token).to.be.equal(token);
+            done();
+          });
+
+          meta.on("join", function(data) {
+            expect(data.token).to.be.equal(token);
+            clientIO.connect('ws://localhost:8081/pty/io/client/' + data.token, 'etherpty-protocol');
+          });
+        });
+      });
+
+      meta.on("start", function(data) {
+        //build the io connection
+        masterIO.connect('ws://localhost:8081/pty/io/master/' + data.token, 'etherpty-protocol');
+        masterIO.on("connect", function(connection) {
+          var io = monkey_patch_wsConnection(connection, "io");
+          io.send("message from the master."); 
+          meta.close();
+        });
+      });
+    });
+  });
+  
 });
 

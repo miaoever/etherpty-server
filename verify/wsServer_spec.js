@@ -7,7 +7,7 @@ describe("Implement the websocket router.", function() {
   var wsClient = require("websocket").client;
   var wsRouter = require("../").router;
   var client;
-  var router = wsRouter.createServer(8080);
+  var router = wsRouter.createServer(8082);
 
   router.mount("/echo", "etherpty-protocol", function(request) {
     var connection = monkey_patch_wsConnection(request.accept('etherpty-protocol', request.origin), "echo");
@@ -48,7 +48,7 @@ describe("Implement the websocket router.", function() {
         done();
       });
     });
-    client.connect('ws://localhost:8080/echo', 'etherpty-protocol');
+    client.connect('ws://localhost:8082/echo', 'etherpty-protocol');
   });
 
   it("support express-style path, ie. /pty/io/:token ", function(done) {
@@ -59,7 +59,7 @@ describe("Implement the websocket router.", function() {
       });
 
     });
-    client.connect('ws://localhost:8080/pty/io/mytoken', 'etherpty-protocol');
+    client.connect('ws://localhost:8082/pty/io/mytoken', 'etherpty-protocol');
   });
 
   it("monkey patch for the connection to listening on specific event.", function(done) {
@@ -71,7 +71,7 @@ describe("Implement the websocket router.", function() {
       });
 
     });
-    client.connect('ws://localhost:8080/pty/io/mytoken', 'etherpty-protocol');
+    client.connect('ws://localhost:8082/pty/io/mytoken', 'etherpty-protocol');
   });
 
   it("listeners could be added to the router, and router should broadcast messages to them.", function(done) {
@@ -99,8 +99,8 @@ describe("Implement the websocket router.", function() {
         }
       });
     });
-    client.connect('ws://localhost:8080/pty/meta/mytoken', 'etherpty-protocol');
-    client2.connect('ws://localhost:8080/pty/meta/mytoken', 'etherpty-protocol');
+    client.connect('ws://localhost:8082/pty/meta/mytoken', 'etherpty-protocol');
+    client2.connect('ws://localhost:8082/pty/meta/mytoken', 'etherpty-protocol');
 
   });
 
