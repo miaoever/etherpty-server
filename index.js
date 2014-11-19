@@ -11,9 +11,3 @@ var port = argv.p || "8080";
 var address = argv.a || "0.0.0.0";
 var router = etherpty(wsRouter.createServer(port, address));
 
-app.use(express.static(__dirname + '/static'));
-app.listen(80);
-
-
-
-

@@ -1,0 +1,35 @@
+<!doctype html>
+<title>term.js</title>
+<!--
+  term.js
+  Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+
+-->
+<style>
+  html {
+    background: #555;
+  }
+  h1 {
+    margin-bottom: 20px;
+    font: 20px/1.5 sans-serif;
+  }
+
+</style>
+<h1>term.js</h1>
+<script src="/js/term.js"></script>
+<script>
+
+window.onload = (function() {
+    var ws_ctor = window['MozWebSocket'] ? window['MozWebSocket'] : window['WebSocket'];
+  
+    var client = new ws_ctor("ws://miaoo.in:8080/pty/meta/8f71cd256af24d68857a8c1fe20827cd", "etherpty-protocol");
+    try {
+      client.onopen = function() {
+        alert("opened");
+      }
+    } catch (_err) {
+      alert(err);
+    }
+}).call(this);
+</script>
