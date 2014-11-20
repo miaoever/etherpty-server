@@ -1,5 +1,5 @@
 <!doctype html>
-<title>term.js</title>
+<title>Etherpty - realtime</title>
 <!--
   term.js
   Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
@@ -17,10 +17,10 @@
   }
   .terminal {
     width:98%;
+    font-size:14px;
   }
 
 </style>
-<!-- <h1>term.js</h1> -->
 <script src="/js/term.js"></script>
 <script src="/js/etherpty.js"></script>
 <script>
@@ -36,8 +36,9 @@ window.onload = (function() {
             useStyle: true,
             screenKeys: true
     });
-   
-    clientMeta.connect("ws://miaoo.in:8080/pty/meta/" + token, "etherpty-protocol");
+    var url = '<%= url%>';
+
+    clientMeta.connect(url + "/pty/meta/" + token, "etherpty-protocol");
     clientMeta.on("connect", function(meta) {
       term.open(document.body);
       term.write('\x1b[31mWelcome to etherpyt!\x1b[m\r\n');
@@ -64,7 +65,7 @@ window.onload = (function() {
       });
 
       meta.on("join", function(data) {
-        clientIO.connect("ws://miaoo.in:8080/pty/io/client/" + token, "etherpty-protocol")
+        clientIO.connect(url + "/pty/io/client/" + token, "etherpty-protocol");
         clientIO.on("connect", function(io) {
           term.write('\r\n\x1b[31mconnect successfully.\x1b[m\r\n\r\n');
 
