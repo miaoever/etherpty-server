@@ -9,8 +9,6 @@ var cookieParser = require('cookie-parser')
 app.use(cookieParser())
 
 app.get('/:token', function(req, res){
-  console.log(req.cookie);
-  req.cookie = [];
   res.render('index.ejs',{"token":req.params.token})
 });
 

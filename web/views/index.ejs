@@ -8,28 +8,80 @@
 -->
 <style>
   html {
-    background: #555;
+    background: black;
+    font-size: 30
   }
   h1 {
     margin-bottom: 20px;
     font: 20px/1.5 sans-serif;
   }
+  .terminal {
+    width:98%;
+  }
 
 </style>
-<h1>term.js</h1>
+<!-- <h1>term.js</h1> -->
 <script src="/js/term.js"></script>
+<script src="/js/etherpty.js"></script>
 <script>
 
 window.onload = (function() {
-    var ws_ctor = window['MozWebSocket'] ? window['MozWebSocket'] : window['WebSocket'];
-  
-    var client = new ws_ctor("ws://miaoo.in:8080/pty/meta/8f71cd256af24d68857a8c1fe20827cd", "etherpty-protocol");
-    try {
-      client.onopen = function() {
-        alert("opened");
-      }
-    } catch (_err) {
-      alert(err);
-    }
+    var token = "<%= token%>";
+    var clientMeta = new etherpty("meta");
+    var clientIO = new etherpty("IO");
+
+    var term = new Terminal({
+            cols: 80,
+            rows: 24,
+            useStyle: true,
+            screenKeys: true
+    });
+   
+    clientMeta.connect("ws://miaoo.in:8080/pty/meta/" + token, "etherpty-protocol");
+    clientMeta.on("connect", function(meta) {
+      term.open(document.body);
+      term.write('\x1b[31mWelcome to etherpyt!\x1b[m\r\n');
+      term.write('\r\n\x1b[31mconnect to remote terminal.\x1b[m\r\n');
+
+
+      meta.sendMessage({type:"join", token:token});
+
+      meta.on("resize", function(data) {
+        var data = data.data.data;
+        term.resize(data.col, data.row);
+      });
+
+      meta.on("exit", function() {
+        term.write('\r\n\x1b[31mremote terminal exit.\x1b[m\r\n');
+      });
+
+      // meta.close("close", function() {
+      //   //term.write('\r\n\x1b[31mremote terminal exit.\x1b[m\r\n');
+      // });
+
+      meta.on("error", function(data) {
+        term.write('\r\n\x1b[31m' + data.message + '.\x1b[m\r\n');
+      });
+
+      meta.on("join", function(data) {
+        clientIO.connect("ws://miaoo.in:8080/pty/io/client/" + token, "etherpty-protocol")
+        clientIO.on("connect", function(io) {
+          term.write('\r\n\x1b[31mconnect successfully.\x1b[m\r\n\r\n');
+
+          
+          term.on('data', function(data) {
+            io.send(data);
+          });
+
+          term.on('title', function(title) {
+            document.title = title;
+          });
+
+          io.on("message", function(message) {
+            term.write(message.data);
+          });
+        });
+      })
+    });
 }).call(this);
 </script>
