@@ -26,7 +26,10 @@ describe("Implement the etherpty server.", function() {
 
   it("responds with the share and join request.", function(done) {
     var count = 0;
-    masterMeta.connect('ws://localhost:8081/pty/meta/0', 'etherpty-protocol');
+    var cols = process.stdout.columns;
+    var rows = process.stdout.rows;
+
+    masterMeta.connect('ws://localhost:8081/pty/meta/' + cols + "&" + rows, 'etherpty-protocol');
     masterMeta.on("connect", function(connection) {
       var meta = monkey_patch_wsConnection(connection, "meta");
       
@@ -44,12 +47,13 @@ describe("Implement the etherpty server.", function() {
           });
 
           meta.on("join", function(data) {
-              expect(data).to.have.property("token");
-              expect(data.token).to.be.equal(token);
+              expect(data).to.have.property("size");
+              expect(data.size[0]).to.be.equal('' + process.stdout.columns);
+              expect(data.size[1]).to.be.equal('' + process.stdout.rows);
               count ++;
               if (count === 2) done();
 
-              clientIO.connect('ws://localhost:8081/pty/io/client/' + data.token, 'etherpty-protocol');
+              clientIO.connect('ws://localhost:8081/pty/io/client/' + token, 'etherpty-protocol');
               clientIO.on("connect", function(connection) {
               });
           });
@@ -110,7 +114,9 @@ describe("Implement the etherpty server.", function() {
   });
 
   it("the clients should recive the broadcast message from the master.", function(done) {
-    masterMeta.connect('ws://localhost:8081/pty/meta/0', 'etherpty-protocol');
+    var cols = process.stdout.columns;
+    var rows = process.stdout.rows;
+    masterMeta.connect('ws://localhost:8081/pty/meta/' + cols + "&" + rows, 'etherpty-protocol');
     masterMeta.on("connect", function(connection) {
       var meta = monkey_patch_wsConnection(connection, "meta");
       
@@ -128,8 +134,10 @@ describe("Implement the etherpty server.", function() {
           });
 
           meta.on("join", function(data) {
-            expect(data.token).to.be.equal(token);
-            clientIO.connect('ws://localhost:8081/pty/io/client/' + data.token, 'etherpty-protocol');
+            expect(data).to.have.property("size");
+            expect(data.size[0]).to.be.equal('' + process.stdout.columns);
+            expect(data.size[1]).to.be.equal('' + process.stdout.rows);
+            clientIO.connect('ws://localhost:8081/pty/io/client/' + token, 'etherpty-protocol');
             clientIO.on("connect", function(connection) {
               var io = connection;
               io.on("message", function(data) {
@@ -153,7 +161,9 @@ describe("Implement the etherpty server.", function() {
   });
 
   it("responds with master close event.", function(done) {
-    masterMeta.connect('ws://localhost:8081/pty/meta/0', 'etherpty-protocol');
+    var cols = process.stdout.columns;
+    var rows = process.stdout.rows;
+    masterMeta.connect('ws://localhost:8081/pty/meta/' + cols + "&" + rows, 'etherpty-protocol');
     masterMeta.on("connect", function(connection) {
       var meta = monkey_patch_wsConnection(connection, "meta");
       
@@ -177,8 +187,10 @@ describe("Implement the etherpty server.", function() {
           });
 
           meta.on("join", function(data) {
-            expect(data.token).to.be.equal(token);
-            clientIO.connect('ws://localhost:8081/pty/io/client/' + data.token, 'etherpty-protocol');
+            expect(data).to.have.property("size");
+            expect(data.size[0]).to.be.equal('' + process.stdout.columns);
+            expect(data.size[1]).to.be.equal('' + process.stdout.rows);
+            clientIO.connect('ws://localhost:8081/pty/io/client/' + token, 'etherpty-protocol');
           });
         });
       });

@@ -41,7 +41,7 @@ window.onload = (function() {
     clientMeta.connect(url + "/pty/meta/" + token, "etherpty-protocol");
     clientMeta.on("connect", function(meta) {
       term.open(document.body);
-      term.write('\x1b[31mWelcome to etherpyt!\x1b[m\r\n');
+      term.write('\x1b[31mWelcome to etherpty!\x1b[m\r\n');
       term.write('\r\n\x1b[31mconnect to remote terminal.\x1b[m\r\n');
 
 
@@ -65,10 +65,12 @@ window.onload = (function() {
       });
 
       meta.on("join", function(data) {
+        var size = data.size;
+        term.resize(size[0], size[1]);
+
         clientIO.connect(url + "/pty/io/client/" + token, "etherpty-protocol");
         clientIO.on("connect", function(io) {
           term.write('\r\n\x1b[31mconnect successfully.\x1b[m\r\n\r\n');
-
           
           term.on('data', function(data) {
             io.send(data);
