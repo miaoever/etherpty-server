@@ -1,11 +1,6 @@
 <!doctype html>
 <title>Etherpty - realtime</title>
-<!--
-  term.js
-  Copyright (c) 2012-2013, Christopher Jeffrey (MIT License)
-  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 
--->
 <style>
   html {
     background: black;
@@ -43,7 +38,6 @@ window.onload = (function() {
       term.open(document.body);
       term.write('\x1b[31mWelcome to etherpty!\x1b[m\r\n');
       term.write('\r\n\x1b[31mconnect to remote terminal.\x1b[m\r\n');
-
 
       meta.sendMessage({type:"join", token:token});
 
