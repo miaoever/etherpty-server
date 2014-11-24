@@ -19,6 +19,9 @@
 <script src="/js/term.js"></script>
 <script src="/js/etherpty.js"></script>
 <script>
+var height = window.innerHeight ||
+             document.documentElement.clientHeight ||
+             document.body.clientHeight;
 
 window.onload = (function() {
     var token = "<%= token%>";
@@ -27,7 +30,7 @@ window.onload = (function() {
 
     var term = new Terminal({
             cols: 80,
-            rows: 24,
+            rows: 60,
             useStyle: true,
             screenKeys: true
     });
@@ -43,16 +46,19 @@ window.onload = (function() {
 
       meta.on("resize", function(data) {
         var data = data.data.data;
-        term.resize(data.col, data.row);
+        //term.resize(data.col, data.row);
+        term.resize(data.col, Math.ceil(height / 17));
       });
 
       meta.on("exit", function() {
         term.write('\r\n\x1b[31mremote terminal exit.\x1b[m\r\n');
+        meta.close();
       });
 
-      // meta.close("close", function() {
-      //   //term.write('\r\n\x1b[31mremote terminal exit.\x1b[m\r\n');
-      // });
+      meta.on("close", function() {
+        term.write('\r\n\x1b[31mremote terminal exit.\x1b[m\r\n');
+        meta.close();
+      });
 
       meta.on("error", function(data) {
         term.write('\r\n\x1b[31m' + data.message + '.\x1b[m\r\n');
@@ -60,7 +66,7 @@ window.onload = (function() {
 
       meta.on("join", function(data) {
         var size = data.size;
-        term.resize(size[0], size[1]);
+        term.resize(size[0], Math.ceil(height / 17));
 
         clientIO.connect(url + "/pty/io/client/" + token, "etherpty-protocol");
         clientIO.on("connect", function(io) {
@@ -76,6 +82,8 @@ window.onload = (function() {
 
           io.on("message", function(message) {
             term.write(message.data);
+            window.scrollTo(0,document.body.scrollHeight);
+            
           });
         });
       })
