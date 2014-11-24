@@ -2,6 +2,7 @@
   "server": {
     "protocol": "ws",
     "host":"localhost",
+    "public": "miaoo.in",
     "port":"8080"
   }
 }
