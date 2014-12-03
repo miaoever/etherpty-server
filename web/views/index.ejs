@@ -51,7 +51,6 @@ window.onload = (function() {
       });
 
       meta.on("exit", function() {
-        term.write('\r\n\x1b[31mremote terminal exit.\x1b[m\r\n');
         meta.close();
       });
 
